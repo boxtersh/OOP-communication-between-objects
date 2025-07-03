@@ -9,6 +9,10 @@ class Library:
         self.__address = self.__check_address(address)
         self.__books = self.__check_books(books)
 
+    def __check_object(self, book: 'Book'):
+
+        if not isinstance(book, Book):
+            raise TypeError('Параметр не является объектом класса Book')
 
     def __check_name(self, name):
 
@@ -46,6 +50,8 @@ class Library:
 
     def __check_book_in_list(self, book: 'Book'):
 
+        self.__check_object(book)
+
         if book.get_book() in self.get_books():
             return True
 
@@ -57,6 +63,8 @@ class Library:
 
     def add_book(self, book: 'Book'):
 
+        self.__check_object(book)
+
         if self.__check_book_in_list(book):
             print('Данная книга уже имеется в библиотеке ')
             return
@@ -64,6 +72,8 @@ class Library:
         self.__books.append(book.get_book())
 
     def remove_book(self, book: 'Book'):
+
+        self.__check_object(book)
 
         if not self.__check_book_in_list(book):
             print('Данной книги в библиотеке нет')
