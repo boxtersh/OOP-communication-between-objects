@@ -1,4 +1,4 @@
-
+import datetime
 
 class Library:
 
@@ -8,6 +8,7 @@ class Library:
         self.__name = self.__check_name(name)
         self.__address = self.__check_address(address)
         self.__books = self.__check_books(books)
+
 
     def __check_object(self, book: 'Book'):
 
@@ -61,15 +62,14 @@ class Library:
 
         return self.__books
 
-    def add_book(self, book: 'Book'):
-
-        self.__check_object(book)
+    def add_book(self, title, author, year, total_pages):
+        book = Book(title, author, year, total_pages)
 
         if self.__check_book_in_list(book):
             print('Данная книга уже имеется в библиотеке ')
             return
 
-        self.__books.append(book.get_book())
+        self.get_books().append(book)
 
     def remove_book(self, book: 'Book'):
 
@@ -83,7 +83,13 @@ class Library:
 
     def list_books(self):
 
-        return f'{self.__books}'
+        if not self.__check_len_list_books(self.__books):
+            print('В библиотеке нет книг')
+            return
+
+        for book in self.get_books():
+            print(f'{book.get_book()[0]} - {book.get_book()[1]} ({book.get_book()[2]}г.)')
+
 
     def find_book_by_title(self, title: str):
 
@@ -92,18 +98,16 @@ class Library:
 
         if not self.__check_len_list_books(self.get_books()):
             print('В библиотеке нет книг')
-            return None
+            return
 
-        lst = self.get_books()
+        for book in self.get_books():
 
-        for line in lst:
+            if title == book.get_book()[0]:
+                print(book.get_book())
+                return
 
-            if title == line.split(",")[0]:
-                return line
-
-        return None
-
-
+        print('Такой книги в библиотеке нет')
+        return
 
 class Book:
 
@@ -113,7 +117,7 @@ class Book:
         self.__author = self.__check_title(author)
         self.__year = self.__check_year(year)
         self.__total_pages = self.__check_total_pages(total_pages)
-        self.__book = ",".join([self.__title, self.__author, str(self.__year)])
+        self.__book = [self.__title, self.__author, str(self.__year)]
 
     def __check_title(self, title):
 
@@ -146,9 +150,9 @@ class Book:
         if len(str(year)) < 4 or len(str(year)) > 4:
             raise ValueError('Год должен состоять из 4х цифр')
 
-        if year < 1000 or year > 2025:
-            raise ValueError('Значение года должно быть в интервале'
-                             ' 1000 до 2025 включая значения интервалов')
+        if year < 1000 or year > datetime.datetime.now().year:
+            raise ValueError(f'Значение года должно быть в интервале'
+                             f'от 1000 до {datetime.datetime.now().year} включая значения интервалов')
 
         return year
 
@@ -192,15 +196,16 @@ class Book:
         self.__check_title(new_title)
         self.__title = new_title
 
+
 b1 = Book("Война и мир", "Л. Толстой", 1869, 275)
-b2 = Book("Горе от ума", "А. С. Грибоедов", 1824, 275)
+b2 = Book("Горе от ума", "А.С. Грибоедов", 1824, 145)
+b2.get_info()
 lib = Library("Центральная библиотека", "ул. Ленина, 10")
 lib.find_book_by_title('5')
-lib.add_book(b1)
-lib.add_book(b2)
-print(lib.get_books())
-b1.bookmark_page(237)
-print(b1.get_info())
+lib.add_book("Война и мир", "Л. Толстой", 1869, 275)
+lib.add_book("Горе от ума", "А. С. Грибоедов", 1824, 145)
+lib.list_books()
+lib.find_book_by_title('Война и мир')
 
 # ***************** 2. Университет, Факультет и Студент (агрегация) ***************************
 
@@ -289,7 +294,6 @@ class University:
     def get_faculties(self):
 
         return self.__faculties
-
 
 class Faculty:
 
