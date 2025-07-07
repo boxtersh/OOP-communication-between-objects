@@ -1,4 +1,6 @@
 import datetime
+'''
+# ***************** 1. Библиотека и Книга (композиция) ***************************
 
 class Library:
 
@@ -449,3 +451,212 @@ uni = University("МГУ")
 math = Faculty("Математический факультет")
 stud = Student("Иван Иванов", "A12345")
 print(stud.get_profile())
+'''
+# ***************** 3. Автомобиль, Двигатель и Колёса (композиция) ***************************
+
+class Engine:
+
+    def __init__(self, power: float = None, type: str = None):
+
+        self.__power = self.__check_power(power)
+        self.__type = self.__check_type(type)
+        self.__status = False
+
+    def get_status(self):
+
+        return self.__status
+
+    def set_status(self, start_stop):
+
+        self.__status = start_stop
+
+    def __check_power(self, power):
+
+        result = input('Выберете систему единиц мощности 1 - Л.С. или 2 - кВт >> ')
+
+        while result not in ['1','2']:
+            print('Выберете 1 или 2')
+            result = input('Выберете систему единиц мощности 1 - Л.С. или 2 - кВт >> ')
+
+        match result:
+            case '1':
+                power = input(f'Введите мощность двигателя от 10 до 1000 включительно >> ')
+                power = self.__check_int(power)
+
+                while power < 10 or power > 1000:
+                    print('Значение должно быть от 10 до 1000')
+                    power = input(f'Введите мощность двигателя от 10 до 1000 включительно >> ')
+                return power
+
+            case '2':
+                power = input(f'Введите мощность двигателя от 10 до 746 включительно >> ')
+                power = self.__check_int(power)
+
+                while power < 10 or power > 746:
+                    print('Значение должно быть от 10 до 746')
+                    power = input(f'Введите мощность двигателя от 10 до 746 включительно >> ')
+                return power
+
+    def __check_type(self, type):
+
+        result = input('Выберете тип двигателя 1 - бензиновый, 2 - дизельный, 3 - водородный >> ')
+
+        while result not in ['1', '2', '3']:
+            print('Выберете 1, 2 или 3')
+            result = input('Выберете тип двигателя 1 - бензиновый, 2 - дизельный, 3 - водородный >> ')
+
+        match result:
+            case '1':
+                return 'бензиновый'
+
+            case '2':
+                return 'дизельный'
+
+            case '3':
+                return 'водородный'
+
+    def __check_int(self, number):
+
+        if not number.isdigit():
+            raise TypeError('Не число, число отрицательно или десятично')
+
+        return int(number)
+
+    def get_engine(self):
+
+        return f'{self.__power}, {self.__type}'
+
+    def ignite(self):
+
+        if not self.get_status():
+            print('Двигатель запущен')
+            self.set_status(not self.get_status())
+            return
+
+        print('Двигатель уже работает')
+
+    def shutdown(self):
+
+        if self.get_status():
+            print('Двигатель остановлен')
+            self.set_status(not self.get_status())
+            return
+
+        print('Двигатель не работает')
+
+class Wheel:
+
+    def __init__(self, size: int = None, type: str = None, tire_pressure: float = None, tire_wear: int = None):
+
+        self.__size = self.__check_size(size)
+        self.__type = self.__check_type(type)
+        self.__tire_pressure = self.__check_tire_pressure(tire_pressure)
+        self.__tire_wear = self.__check_tire_wear(tire_wear)
+        self.__weel = (f'Диаметр диска: {self.__size}"\nТип резины: {self.__type}\n'
+                       f'Давление в шинах: {self.__tire_pressure}bar\nСтепень износа: {self.__tire_wear}%')
+
+    def __check_size(self, size):
+
+        size = input('Введите размер диска от 13 до 25 дюймов включительно >> ')
+
+        if not str(size).isdigit():
+            raise TypeError('Это не число, отрицательно или дробно')
+
+        size = int(size)
+
+        if size < 13 or size > 25:
+            raise TypeError('Размер диска должен быть от 13 до 25 дюймов включительно')
+
+        return size
+
+    def __check_type(self, type):
+
+        result = input('Выберете тип шины: 1 - летняя, 2 - зимняя, 3 - всесезонная >> ')
+
+        while result not in ['1', '2', '3']:
+            print('Выберете 1, 2 или 3')
+            result = input('Выберете тип шины: 1 - летняя, 2 - зимняя, 3 - всесезонная >>')
+
+        match result:
+            case '1':
+                return 'летняя'
+
+            case '2':
+                return 'зимняя'
+
+            case '3':
+                return 'всесезонная'
+
+    def __check_tire_pressure(self, bar):
+
+        bar = input('Введите давление шин от 0 до 3.5 bar включительно >> ')
+
+        try:
+            bar = float(bar)
+        except ValueError:
+            raise TypeError('Это не десятичное число')
+
+        bar = round(float(bar),1)
+
+        if bar < 0 or bar > 3.5:
+            raise TypeError('Давление шин должно быть от 0 до 3.5 bar включительно')
+
+        return bar
+
+    def __check_tire_wear(self, wear:int):
+
+        wear = input('Введите степень износа шин в % от 0 до 99 (При 100% шины подлежат замене) >> ')
+
+        if not str(wear).isdigit():
+            raise TypeError('Это не число, отрицательно или дробно')
+
+        wear = int(wear)
+
+        if wear > 99:
+            raise TypeError('Износ шин не может быть больше 99%')
+
+        return wear
+
+    def get_whells(self):
+
+        return self.__weel
+
+class Car:
+
+    def __init__(self, brand, model):
+
+        self.__brand = brand
+        self.__model = model
+        self.__engine = Engine()
+        self.__wheel = self.create_list_wheels()
+        self.__car = (f'Автомобиль:\nмарка: {self.__brand}, модель: {self.__model}\n'
+                      f'Двигатель: {self.__engine.get_engine()}\n')
+
+    def create_list_wheels(self):
+
+        lst_wheels = []
+
+        for i in range(4):
+            wheels = Wheel()
+            lst_wheels.append(wheels)
+
+        return lst_wheels
+
+    def get_car(self):
+        return self.__car
+
+    def get_engine(self):
+
+        return self.__engine
+
+    def get_list_wells(self):
+
+        return self.__wheel
+
+    def __repr__(self):
+        return self.get_car()
+
+car = Car('Лада', 'Гранта')
+print(car)
+car.get_engine().ignite()
+car.get_engine().shutdown()
