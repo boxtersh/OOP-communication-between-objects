@@ -464,7 +464,32 @@ class Engine:
 
     def get_status(self):
 
+        match self.__status:
+            case True:
+                status = 'Двигатель в работе'
+
+            case False:
+                status = 'Двигатель выключен'
+
+            case None:
+                status = 'Двигатель в режиме обслуживания'
+
+        print(status)
+
         return self.__status
+
+    def service(self):
+
+        if self.get_status() == None:
+            print('Двигатель в рабочем состоянии')
+            return self.set_status(False)
+
+        elif self.get_status() == False:
+            print('Двигатель в режиме обслуживания')
+            return self.set_status(None)
+
+        print('Для перехода в режим обслуживания - заглушите двигатель')
+        return
 
     def set_status(self, start_stop):
 
@@ -533,6 +558,10 @@ class Engine:
             self.set_status(not self.get_status())
             return
 
+        elif self.get_status() == None:
+            print('Двигатель сервисном обслуживании')
+            return
+
         print('Двигатель уже работает')
 
     def shutdown(self):
@@ -552,8 +581,6 @@ class Wheel:
         self.__type = self.__check_type(type)
         self.__tire_pressure = self.__check_tire_pressure(tire_pressure)
         self.__tire_wear = self.__check_tire_wear(tire_wear)
-        self.__weel = (f'Диаметр диска: {self.__size}"\nТип резины: {self.__type}\n'
-                       f'Давление в шинах: {self.__tire_pressure}bar\nСтепень износа: {self.__tire_wear}%')
 
     def __check_size(self, size):
 
@@ -605,7 +632,7 @@ class Wheel:
 
     def __check_tire_wear(self, wear:int):
 
-        wear = input('Введите степень износа шин в % от 0 до 99 (При 100% шины подлежат замене) >> ')
+        wear = input('Введите степень износа шин в % от 0 до 99 (При 50% шины подлежат замене) >> ')
 
         if not str(wear).isdigit():
             raise TypeError('Это не число, отрицательно или дробно')
@@ -617,9 +644,37 @@ class Wheel:
 
         return wear
 
-    def get_whells(self):
+    def get_tire_pressure(self):
 
-        return self.__weel
+        return self.__tire_pressure
+
+    def set_tire_pressure(self, pressure):
+
+        self.__tire_pressure = pressure
+
+    def get_tire_wear(self):
+
+        return self.__tire_wear
+
+    def rotate(self, status: bool = False):
+
+        if status:
+            print('Колеса вращаются')
+            return
+
+        print('Колеса не вращаются')
+
+    def inflate(self, pressure: float):
+
+        self.__check_tire_pressure(pressure)
+
+        if self.get_tire_pressure() < pressure:
+            self.set_tire_pressure(pressure)
+
+    def deflate(self):
+
+        if self.get_tire_pressure() > 2:
+            self.set_tire_pressure(2)
 
 class Car:
 
@@ -628,35 +683,67 @@ class Car:
         self.__brand = brand
         self.__model = model
         self.__engine = Engine()
-        self.__wheel = self.create_list_wheels()
+        self.__wheel = self.create_dict_wheels()
         self.__car = (f'Автомобиль:\nмарка: {self.__brand}, модель: {self.__model}\n'
                       f'Двигатель: {self.__engine.get_engine()}\n')
 
-    def create_list_wheels(self):
+    def create_dict_wheels(self):
 
-        lst_wheels = []
+        wheel_position = ['Передний Левый','Передний Правый','Задний Левый','Задний Правый']
+        wheels = {}
+        for key in wheel_position:
+            print(f'Введите значение колеса для позиции - {key}')
+            wheels[key] = Wheel()
 
-        for i in range(4):
-            wheels = Wheel()
-            lst_wheels.append(wheels)
+        return wheels
 
-        return lst_wheels
-
-    def get_car(self):
+    def get_specs(self):
         return self.__car
 
     def get_engine(self):
 
         return self.__engine
 
-    def get_list_wells(self):
+    def get_dict_wells(self):
 
         return self.__wheel
 
     def __repr__(self):
-        return self.get_car()
+        return self.get_specs()
+
+    def start(self):
+
+        dict_wells = self.get_dict_wells()
+
+        for key in dict_wells.keys():
+
+            if dict_wells[key].get_tire_pressure() < 2 or dict_wells[key].get_tire_pressure() > 2.5:
+                print(f'Давление колеса {key} не в норме, отрегулируйте давление')
+                return
+
+            if dict_wells[key].get_get_tire_wear() >= 50:
+                print(f'Износ колеса {key} выше нормы в 50%, замените колесо')
+                return
+
+        self.get_engine().ignite()
+
+    def stop(self):
+
+        self.get_engine().shutdown()
+
+    def replace_wheel(self):
+
+        list_key = [key for key in self.get_dict_wells().keys()]
+        wheel_position = input('Введите какое колесо желаете заменить - ' + ",".join(list_key) + '?')
+
+        while wheel_position not in list_key:
+            print('Неверный ввод')
+            wheel_position = input(",".join(list_key))
+
+        self.get_dict_wells()[wheel_position] = Wheel()
+
 
 car = Car('Лада', 'Гранта')
 print(car)
-car.get_engine().ignite()
 car.get_engine().shutdown()
+car.replace_wheel()
